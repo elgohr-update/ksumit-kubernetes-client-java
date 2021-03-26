@@ -33,6 +33,7 @@ import okio.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.introspector.Property;
@@ -366,10 +367,28 @@ public class Yaml {
   }
 
   private static org.yaml.snakeyaml.Yaml getSnakeYaml(Class<?> type) {
+    CustomRepresenter customRepresenter = new CustomRepresenter();
+    DumperOptions dumperOptions = initDumperOptions(customRepresenter);
+    LoaderOptions loaderOptions = createCaseInsensitiveEnumLoaderOptions();
     if (type != null) {
-      return new org.yaml.snakeyaml.Yaml(new CustomConstructor(type), new CustomRepresenter());
+      return new org.yaml.snakeyaml.Yaml(new CustomConstructor(type), customRepresenter, dumperOptions, loaderOptions);
     }
-    return new org.yaml.snakeyaml.Yaml(new SafeConstructor(), new CustomRepresenter());
+    return new org.yaml.snakeyaml.Yaml(new SafeConstructor(), customRepresenter, dumperOptions, loaderOptions);
+  }
+
+  private static LoaderOptions createCaseInsensitiveEnumLoaderOptions(){
+    LoaderOptions loaderOptions = new LoaderOptions();
+    loaderOptions.setEnumCaseSensitive(false);
+    return loaderOptions;
+  }
+
+  private static DumperOptions initDumperOptions(Representer representer) {
+    DumperOptions dumperOptions = new DumperOptions();
+    dumperOptions.setDefaultFlowStyle(representer.getDefaultFlowStyle());
+    dumperOptions.setDefaultScalarStyle(representer.getDefaultScalarStyle());
+    dumperOptions.setAllowReadOnlyProperties(representer.getPropertyUtils().isAllowReadOnlyProperties());
+    dumperOptions.setTimeZone(representer.getTimeZone());
+    return dumperOptions;
   }
 
   /**
