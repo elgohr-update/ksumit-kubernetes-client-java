@@ -369,14 +369,14 @@ public class Yaml {
   private static org.yaml.snakeyaml.Yaml getSnakeYaml(Class<?> type) {
     CustomRepresenter customRepresenter = new CustomRepresenter();
     DumperOptions dumperOptions = initDumperOptions(customRepresenter);
-    LoaderOptions loaderOptions = createCaseInsensitiveEnumLoaderOptions();
+    LoaderOptions loaderOptions = initCaseInsensitiveEnumLoaderOptions();
     if (type != null) {
       return new org.yaml.snakeyaml.Yaml(new CustomConstructor(type), customRepresenter, dumperOptions, loaderOptions);
     }
     return new org.yaml.snakeyaml.Yaml(new SafeConstructor(), customRepresenter, dumperOptions, loaderOptions);
   }
 
-  private static LoaderOptions createCaseInsensitiveEnumLoaderOptions(){
+  private static LoaderOptions initCaseInsensitiveEnumLoaderOptions(){
     LoaderOptions loaderOptions = new LoaderOptions();
     loaderOptions.setEnumCaseSensitive(false);
     return loaderOptions;
